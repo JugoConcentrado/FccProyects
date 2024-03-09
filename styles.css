@@ -1,0 +1,34 @@
+h1 {
+    text-align: center;
+}
+h3 {
+    text-align: center;
+    
+}
+.dot {
+    border-color: black;
+    opacity: 0.8;
+    stroke: #000;
+    ;
+}
+.main_div{
+    margin: 0 auto;
+    width: 920px;
+    height: 600px;
+}
+
+#tooltip {
+    background-color: rgb(31, 119, 180);
+    position: absolute;
+    display: block;
+    font: 15px sans-serif;
+}
+#legend div {
+    display: flex;
+}
+#legend div div{
+    width: 18px;
+    height: 18px;
+    margin: 12px;
+
+}

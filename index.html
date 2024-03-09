@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="./styles.css" />
+        <title>Doping in Professional Bicycle Racing</title>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    </head>
+    <body>
+        
+        <h1 id="title">Doping in Professional Bicycle Racing</h1>
+        <h3>35 Fastest times up Alpe d'Huez</h3>
+        <div class="main_div">
+        
+        <div id="legend">
+            <div>
+                <div style="background-color: rgb(31, 119, 180)"> </div><p>Riders with doping allegations</p>
+            </div>
+            <div>
+            <div style="background-color: rgb(255, 127, 14)"></div><p>No doping allegations</p>
+
+            </div>
+        </div>
+        </div>
+
+        <script>
+            fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json")
+            .then(response => response.json())
+            .then(data => {
+            let dataset = [data];
+            dataset = dataset[0]
+
+            const w = 920;
+            const h = 630;
+            const padding = 60;
+            let timeInMin  = []
+            for (let i = 0; i < dataset.length; i++) {
+                timeInMin.push(dataset[i].Time);
+            }
+
+            var specifier = "%M:%S";
+            var parsedData = timeInMin.map(function(d) {
+                return d3.timeParse(specifier)(d)
+            });
+            //Define Scales
+            const xScale = d3.scaleLinear([d3.min(dataset, d => d.Year-1), d3.max(dataset, d => d.Year)+ 1], [padding, w -padding]);
+            
+            const yScale = d3.scaleUtc(d3.extent(parsedData), [h - padding, padding])
+        
+            //create the Scatterplot graph
+            const svg = d3.select(".main_div")
+                          .append("svg")
+                          .attr("width",w)
+                          .attr("height", h)
+                          .attr("padding", padding);
+             //Tooltips
+             var Tooltip = d3.select("div")
+                            .append("div")
+                            .attr("id", "tooltip")
+                            .attr("display","block")
+                            .style("opacity", 0)
+                            .attr("class", "tooltip")
+                            .style("border-width", "2px")
+                            .style("border-radius", "5px")
+                            .style("padding", "5px")
+                            
+
+            var mouseover = function(d,i) {
+                                Tooltip
+                                .style("opacity", 1)
+                                .html(i.Name +"," + i.Nationality + "<br>"+"Year: " +i.Year+ " Time: "+ i.Time +"<br>"+ i.Doping )
+                                .style('left', event.pageX + 'px')
+                                .style('top', event.pageY - 28 + 'px')
+                                .style("z-index","2")
+                                
+                                
+
+                            }
+            var mouseleave = function(d) {
+                                Tooltip
+                                .style("opacity", 0)
+                                .html(" ")
+                                .style("z-index","0")
+                                
+            }
+
+
+
+            //Creating the Axis
+            svg.append("g")
+                .attr("transform", "translate(0,"+ (h-padding)+")")
+                .classed("x-axis tick",true)
+                .call(d3.axisBottom(xScale));
+            
+
+
+            svg.append("g")
+                .attr("transform", "translate("+ (padding)+",0)")
+                .classed("y-axis tick", true)
+                .call(d3.axisLeft(yScale).tickFormat(d3.timeFormat("%M:%S")));
+                
+        
+            //Plots
+            let dotColor = function(data){
+                if(data.Doping == "") {
+                    return "rgb(255, 127, 14)"
+                }
+                else {
+                    return "rgb(31, 119, 180)"
+                }
+             }
+            
+            svg.selectAll("circle")
+             .data(dataset)
+             .enter()
+             .append("circle")
+             .classed("dot", true)
+             .attr("data-yvalue",(d,i) => yScale(parsedData[i]))
+             .attr("data-xvalue", (d) => new Date(xScale(d.Year)))
+             .attr("cx", (d) => xScale(d.Year))
+             .attr("cy",(d,i) => yScale(parsedData[i]))
+             .attr("fill",(d,i) => dotColor(d) )
+             .attr("r", (d) => 6)
+             .on("mouseover", mouseover)
+             .on("mouseleave", mouseleave);
+             
+                       
+       
+            
+
+            
+        });
+
+        </script>
+        
+    </body>
+
+</html>
